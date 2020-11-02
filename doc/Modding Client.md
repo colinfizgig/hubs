@@ -1,10 +1,8 @@
-The General structure for the injection format is to create a new aframe component that has NAF (networked aframe) functionality built into it then "inject" the networked template
-into the <assets> tag in the hub.html using standard dom append code.  Then you update the network schema by adding the new template.  Finally you create some way to append the
-new entity with the component applied and its networked, #template component setup.
+The General structure for the injection format is to create a new aframe component that has NAF (networked aframe) functionality built into it then "inject" the networked template into the <assets> tag in the hub.html using standard dom append code.  Then you update the network schema by adding the new template.  Finally you create some way to append the new entity with the component applied and its networked, #template component setup.
 
 Here is an example..
 
-AFRAME.registerComponent("some-new-component", {
+	AFRAME.registerComponent("some-new-component", {
 		  schema: {
 			  attribute1: { default: 0 },
 			  attribute2: {default: 5}
@@ -197,8 +195,8 @@ AFRAME.registerComponent("some-new-component", {
 						// once the template is created you append it to the assets
 						assets.appendChild(newTemplate);
 
-// this function is used to create a returned value based on some initial start value on the object.  It is used
-// in the networked schema to attach the amount the object should update over the network.
+	// this function is used to create a returned value based on some initial start value on the object.  It is used
+	// in the networked schema to attach the amount the object should update over the network.
 
 					//	This sets up an update function for how often each networked entity needs to update
 					// position, rotation, or scale based on each transforms setting in the NAF schema.
@@ -288,8 +286,8 @@ AFRAME.registerComponent("some-new-component", {
 				}
 		});
 
-// finally you need some way to add the object to the current scene in hubs.  This could be accomplised in several ways, like adding a chat functions event, or
-// some keyboard shorcut or attaching the function to some physics trigger or clicked object in the scene with a component.
+	// finally you need some way to add the object to the current scene in hubs.  This could be accomplised in several ways, like adding a chat functions event, or
+	// some keyboard shorcut or attaching the function to some physics trigger or clicked object in the scene with a component.
 
 		function addSlides(){
 			var el = document.createElement("a-entity")
