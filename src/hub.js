@@ -661,23 +661,106 @@ function handleHubChannelJoined(entryManager, hubChannel, messageDispatch, data)
         });
     };
 
-    window.APP.hub = hub;
-    updateUIForHub(hub, hubChannel);
-    scene.emit("hub_updated", { hub });
+	////////////////////////////////////////////////////////////////////////////////////////
+	// injected stuff here
+	////////////////////////////////////////////////////////////////////////////////////////
+	
+	console.log("checking access");
+	console.log(hub.scene.scene_id);
+		//check to see if the scene exists here
+		//let scene = document.querySelector("a-scene");
+		
+		// set the version of the components from github commit hash
+		//let version = "43b68247dfb47c581d307f413a055a7fd4d9ba31";
+		//local host check to our Node server.  Should be to node server at some point.
+		//const myScene = "Y8SYx7W";
+		//https://localhost:8080/hub.html?hub_id=5HsuTZ2 is a hub that contains the proper scene
+		//for testing purposes.
+		const myScene = hub.scene.scene_id;
+		//const myScene = "1324";
+		//const url = "http://localhost:3000/injectSlideshow/" + myScene;
+		const url = "http://localhost:3000/injectSlideshow?hubscene="+ myScene;
+		
+		function makeRequest (method, url) {
+			
+			  return new Promise(function (resolve, reject) {
+				var xhr = new XMLHttpRequest();
+				xhr.open(method, url);
+				xhr.onload = function () {
+				  if (this.status >= 200 && this.status < 300) {
+					resolve(xhr.response);
+				  } else {
+					reject({
+						status: this.status,
+						statusText: xhr.statusText
+					});
+				  }
+				};
+				xhr.onerror = function () {
+					reject({
+						status: this.status,
+						statusText: xhr.statusText
+					});
+				};
+				xhr.send();
+			  });
+			}
 
-    if (!isEmbed) {
-      loadEnvironmentAndConnect();
-    } else {
-      remountUI({
-        onPreloadLoadClicked: () => {
-          hubChannel.allowNAFTraffic(true);
-          remountUI({ showPreload: false });
-          loadEnvironmentAndConnect();
-        }
-      });
-    }
+			makeRequest('GET', url)
+			//fetch(url,{method:'GET', headers: {
+			//'Content-type': 'text/html; charset=UTF-8'}})
+				.then(function (datums) {
+					console.log("got server scene response");
+					console.log(datums);
+					
+					var myUrls = datums.split(",");
+					var myBody = document.querySelector("body");
+					for(var items of myUrls) {
+						console.log("iterating");
+						//inject some scripts based on the returned urls (we may need to split a list or something.
+						var newScript = document.createElement("script");
+						newScript.type = 'text/javascript';
+
+						var srcAt = document.createAttribute('src');
+						srcAt.value = items;
+						newScript.setAttributeNode(srcAt);
+
+						myBody.appendChild(newScript);
+					}
+					
+					finishInjection();
+					
+					resolve();
+				})
+				.catch(function (err) {
+					finishInjection();
+					console.error('Augh, there was an error!', err.statusText);
+				});
+
+	///////////////////////////////////////////////////////////////////////////////////////
+
+	
+	function finishInjection(){
+		
+		window.APP.hub = hub;
+		updateUIForHub(hub, hubChannel);
+		scene.emit("hub_updated", { hub });
+
+		if (!isEmbed) {
+		  loadEnvironmentAndConnect();
+		} else {
+		  remountUI({
+			onPreloadLoadClicked: () => {
+			  hubChannel.allowNAFTraffic(true);
+			  remountUI({ showPreload: false });
+			  loadEnvironmentAndConnect();
+			}
+		  });
+		}
+	}
+	
+	
   };
-
   connectToScene();
 }
 
